@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: testyourself-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
+      - FLASK_CONFIG=development
+      - FLASK_DEBUG=1
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=5000
+      - SECRET_KEY=${SECRET_KEY:-testyourself_super_secret_key_demo_mode_123456789}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-testyourself_jwt_secret_key_demo_mode_987654321}
+      - DEV_DATABASE_URL=sqlite:///testyourself.db
+      - UPLOAD_FOLDER=uploads
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/callback
+    volumes:
+      - backend-data:/app/instance
+      - backend-uploads:/app/uploads
+
+volumes:
+  backend-data:
+  backend-uploads:

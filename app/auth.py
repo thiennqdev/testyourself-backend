@@ -59,16 +59,32 @@ def token_required(f):
 # --- Đăng ký người dùng ---
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-    name = data.get("name")
+    data = request.get_json() or {}
+    username = data.get("username", "").strip() if data.get("username") else None
+    password = data.get("password", "")
+    email = data.get("email", "").strip() if data.get("email") else None
+    name = data.get("name", "").strip() if data.get("name") else None
+
+    if not username or not password:
+        return jsonify({"error": "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu"}), 400
+
+    if not email:
+        email = f"{username}@testyourself.local"
 
     if User.query.filter_by(username=username).first():
-        return jsonify({"error": "Username đã tồn tại"}), 409
+        return jsonify({"error": "Tên đăng nhập đã tồn tại"}), 409
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email đã được sử dụng"}), 409
 
     hashed_pw = generate_password_hash(password)
-    new_user = User(username=username, password=hashed_pw, name=name, role="USER")
+    new_user = User(
+        username=username,
+        email=email,
+        password=hashed_pw,
+        name=name or username,
+        role="USER"
+    )
 
     db.session.add(new_user)
     db.session.commit()
@@ -78,11 +94,12 @@ def register():
 # --- Đăng nhập thường ---
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    data = request.get_json() or {}
+    username = data.get("username", "").strip() if data.get("username") else ""
+    password = data.get("password", "")
 
-    user = User.query.filter_by(username=username).first()
+    # Cho phép đăng nhập bằng cả username hoặc email
+    user = User.query.filter((User.username == username) | (User.email == username)).first()
 
     if not user or not check_password_hash(user.password, password):
         return jsonify({"error": "Tài khoản hoặc mật khẩu không đúng"}), 401

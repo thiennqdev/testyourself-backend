@@ -26,10 +26,12 @@ def create_app(config_name=None):
     app.config["UPLOAD_FOLDER"] = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
     app.config.from_object(config['development'])
 
-        # Lấy thư mục gốc của dự án (thư mục chứa 'app', 'run.py', 'uploads')
+    # Lấy thư mục gốc của dự án (thư mục chứa 'app', 'run.py', 'uploads')
     base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    # Tạo đường dẫn chính xác đến thư mục 'uploads' ở gốc
+    # Tạo đường dẫn chính xác đến thư mục 'uploads' và 'instance' ở gốc
     app.config["UPLOAD_FOLDER"] = os.path.join(base_dir, "uploads")
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    os.makedirs(os.path.join(base_dir, "instance"), exist_ok=True)
     # *** ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT ***
     # Cho phép frontend và các header cần thiết
     CORS(app, 
@@ -68,6 +70,6 @@ def create_app(config_name=None):
 
     # Log REDIRECT_URI nếu có dùng OAuth
     from app.utils.oauth import REDIRECT_URI
-    app.logger.info(f"🔁 REDIRECT URI đang dùng: {REDIRECT_URI}")
+    app.logger.info(f"[INFO] REDIRECT URI: {REDIRECT_URI}")
 
     return app

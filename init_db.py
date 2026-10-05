@@ -16,11 +16,11 @@ def create_admin_user():
         )
         db.session.add(admin)
         db.session.commit()
-        print("✅ Admin account created: username='admin', password='admin123', role='ADMIN'")
+        print("[OK] Admin account created: username='admin', password='admin123', role='ADMIN'")
     else:
-        print("ℹ️ Admin account already exists.")
+        print("[INFO] Admin account already exists.")
 
 with app.app_context():
     db.create_all()
     create_admin_user()  # 👈 Thêm dòng này
-    print("✅ Database initialized.")
+    print("[OK] Database initialized.")

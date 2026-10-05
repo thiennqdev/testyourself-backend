@@ -17,5 +17,8 @@ app = create_app(config_name)
 migrate = Migrate(app, db)
 
 if __name__ == '__main__':
-    # BẬT DEBUG luôn (không phụ thuộc config file)
-    app.run(debug=True)
+    host = os.getenv('FLASK_RUN_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_RUN_PORT', 5000))
+    debug = os.getenv('FLASK_DEBUG', '1') == '1'
+    app.run(host=host, port=port, debug=debug)
+
